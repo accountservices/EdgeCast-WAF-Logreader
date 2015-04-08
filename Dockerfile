@@ -1,2 +1,7 @@
-FROM ruby:2.2-onbuild
+FROM ruby:2.1-onbuild
+ENV PORT 80
+ENV INTERVAL 300
+ENV EDGECAST_ACCOUNT account_number
+ENV EDGECAST_REST_TOKEN rest_token
+ENV OFFSET 2
 CMD ["./waflogs.rb"]
