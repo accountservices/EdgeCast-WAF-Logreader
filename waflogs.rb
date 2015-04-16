@@ -5,6 +5,7 @@ require 'net/https'
 require 'date'
 require 'json'
 require 'gserver'
+require 'logger'
 
 
 class HealthCheckServer < GServer
@@ -27,6 +28,11 @@ server.audit = false                  # Turn logging on.
 server.start
 
 url_to_account = 'https://api.edgecast.com/v2/mcc/customers/' + ENV['EDGECAST_ACCOUNT'] + '/waf/eventlogs'
+
+logger = Logger.new(ENV['LOG_PATH'] + ENV['FILE'] + '.log', 10, 1024*1024)
+logger.formatter = proc do |severity, datetime, progname, msg|
+  "#{msg}\n"
+end
 
 def fetch_feed url
   urltemp = URI.parse(url)
@@ -59,7 +65,7 @@ loop {
   for page in 1..pages
     response = fetch_feed(url+'&page=' + page.to_s)
     result = JSON.parse(response.body)
-    result['events'].each { |event| p event.to_json }
+    result['events'].each { |event| logger.info(JSON.generate(event)) }
   end
   sleep interval
 }
