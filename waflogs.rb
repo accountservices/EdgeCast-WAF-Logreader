@@ -38,6 +38,11 @@ puts ENV['EDGECAST_REST_TOKEN'] || 'Missing EDGECAST_REST_TOKEN'
 
 url_to_account = 'https://api.edgecast.com/v2/mcc/customers/' + ENV['EDGECAST_ACCOUNT'] + '/waf/eventlogs'
 
+class Logger::LogDevice
+  def add_log_header(file)
+  end
+end
+
 logger = Logger.new(ENV['LOG_PATH'] + ENV['FILE'] + '.log', 10, 1024*1024)
 logger.formatter = proc do |severity, datetime, progname, msg|
   "#{msg}\n"
