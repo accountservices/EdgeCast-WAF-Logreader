@@ -28,22 +28,22 @@ server = HealthCheckServer.new
 server.audit = false                  # Turn logging on.
 server.start
 
+puts ENV['UMBWORLD'] || 'Missing UMBWORLD'
 puts ENV['EDGECAST_ACCOUNT'] || 'Missing EDGECAST_ACCOUNT'
 puts ENV['LOG_PATH'] || 'Missing LOG_PATH'
-puts ENV['FILE'] || 'Missing FILE'
 puts ENV['INTERVAL'] || 'Missing INTERVAL'
 puts ENV['OFFSET'] || 'Missing OFFSET'
 puts ENV['FILTER'] || 'Missing FILTER'
 puts ENV['EDGECAST_REST_TOKEN'] || 'Missing EDGECAST_REST_TOKEN'
 
-url_to_account = 'https://api.edgecast.com/v2/mcc/customers/' + ENV['EDGECAST_ACCOUNT'] + '/waf/eventlogs'
+url_to_account = 'https://api.edgecast.com/v2/mcc/customers/' + ENV[ENV['UMBWORLD'] + '_EDGECAST_ACCOUNT'] + '/waf/eventlogs'
 
 class Logger::LogDevice
   def add_log_header(file)
   end
 end
 
-logger = Logger.new(ENV['LOG_PATH'] + ENV['FILE'] + '.log', 10, 1024*1024)
+logger = Logger.new(ENV['LOG_PATH'] + ENV['UMBWORLD'].downcase + '.log', 10, 1024*1024)
 logger.formatter = proc do |severity, datetime, progname, msg|
   "#{msg}\n"
 end
@@ -53,7 +53,7 @@ def fetch_feed url
   https = Net::HTTP.new(urltemp.host, urltemp.port)
   https.use_ssl = (urltemp.scheme == 'https')
   request = Net::HTTP::Get.new(url)
-  request['Authorization'] = 'TOK:' + ENV['EDGECAST_REST_TOKEN']
+  request['Authorization'] = 'TOK:' + ENV[ENV['UMBWORLD'] + '_EDGECAST_REST_TOKEN']
   return https.request(request)
 end
 
