@@ -28,14 +28,6 @@ server = HealthCheckServer.new
 server.audit = false                  # Turn logging on.
 server.start
 
-puts ENV['UMBWORLD'] || 'Missing UMBWORLD'
-puts ENV['EDGECAST_ACCOUNT'] || 'Missing EDGECAST_ACCOUNT'
-puts ENV['LOG_PATH'] || 'Missing LOG_PATH'
-puts ENV['INTERVAL'] || 'Missing INTERVAL'
-puts ENV['OFFSET'] || 'Missing OFFSET'
-puts ENV['FILTER'] || 'Missing FILTER'
-puts ENV['EDGECAST_REST_TOKEN'] || 'Missing EDGECAST_REST_TOKEN'
-
 url_to_account = 'https://api.edgecast.com/v2/mcc/customers/' + ENV[ENV['UMBWORLD'] + '_EDGECAST_ACCOUNT'] + '/waf/eventlogs'
 
 class Logger::LogDevice
