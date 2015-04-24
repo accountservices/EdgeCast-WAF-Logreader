@@ -49,20 +49,32 @@ def fetch_feed url
   return https.request(request)
 end
 
-interval = ENV['INTERVAL'].to_i
-offset = ENV['OFFSET'].to_i
-filter = ENV['FILTER']
+def flatten_sub_events event
+  event['Sub Events'].each_with_index {|item, index|
+    event['Sub Event ' + index.to_s] = item
+  }
+  event.delete('Sub Events')
+  return event
+end
 
-loop {
-  url = url_to_account
+def create_url baseurl, interval
+  offset = ENV['OFFSET'].to_i
+  filter = ENV['FILTER']
   now = (DateTime.now - Rational(offset, 24)).strftime('%Y-%m-%dT%H:%M')
   five_minutes_ago = (DateTime.now - Rational(offset, 24) - Rational(interval, 86400)).strftime('%Y-%m-%dT%H:%M')
-  url = url + '?start_time=' + five_minutes_ago
-  url = url + '&end_time=' + now
+  baseurl = baseurl + '?start_time=' + five_minutes_ago
+  baseurl = baseurl + '&end_time=' + now
 
   unless filter.nil?
-    url = url + '&filters=' + filter.to_s
+    baseurl = baseurl + '&filters=' + filter.to_s
   end
+  return baseurl
+end
+
+interval = ENV['INTERVAL'].to_i
+
+loop {
+  url = create_url(url_to_account, interval)
 
   response = fetch_feed(url)
   result = JSON.parse(response.body)
@@ -71,7 +83,7 @@ loop {
   for page in 1..pages
     response = fetch_feed(url+'&page=' + page.to_s)
     result = JSON.parse(response.body)
-    result['events'].each { |event| logger.info(JSON.generate(event)) }
+    result['events'].each { |event| logger.info(JSON.generate(flatten_sub_events(event))) }
   end
   sleep interval
 }
